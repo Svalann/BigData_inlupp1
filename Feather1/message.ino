@@ -1,11 +1,12 @@
 #include <ArduinoJson.h>
 
-void prepareMessage(float temperature, char *payload)
+void prepareMessage(char *payload)
 {
     float humidity = readHumidity();
     StaticJsonBuffer<MESSAGE_MAX_LEN> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     root["deviceId"] = DEVICE_ID;
+	root["deviceName"] = DEVICE_NAME;
 	root["sendTo"] = SENDER_ID; // om UWP ska användas
 	root["epochTime"] = (long)time(NULL);
 	root["myName"] = MYNAME;
@@ -117,6 +118,39 @@ void parseTwinMessage(char *message)
 		sendInterval = root["tempInterval"];
 		Serial.printf("\nTwinmessage recieved. TempInterval changed to: %d\n", tempInterval);
 	}
+
+	if (root["desired"]["deviceName"].success())
+	{
+		strcpy(deviceName, root["desired"]["deviceName"]);
+		Serial.printf("\ndeviceName is set to: %s\n", deviceName);
+	}
+	else if (root.containsKey("deviceName"))
+	{
+		strcpy(deviceName, root["deviceName"]);
+		Serial.printf("\nTwinmessage recieved. deviceName changed to: %s\n", deviceName);
+	}
+
+	if (root["desired"]["myName"].success())
+	{
+		strcpy(myName, root["desired"]["myName"]);
+		Serial.printf("\nmyName is set to: %s\n", myName);
+	}
+	else if (root.containsKey("myName"))
+	{
+		strcpy(myName, root["myName"]);
+		Serial.printf("\nTwinmessage recieved. myName changed to: %s\n", myName);
+	}
+
+	if (root["desired"]["sensorType"].success())
+	{
+		strcpy(sensorType, root["desired"]["sensorType"]);
+		Serial.printf("\nsensorType is set to: %s\n", sensorType);
+	}
+	else if (root.containsKey("sensorType"))
+	{
+		strcpy(sensorType, root["sensorType"]);
+		Serial.printf("\nTwinmessage recieved. sensorType changed to: %s\n", sensorType);
+	}	
 }
 
 

@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WiFiUdp.h>
-
+#include <ESP8266HTTPClient.h>
 #include <AzureIoTHub.h>
 #include <AzureIoTProtocol_MQTT.h>
 #include <AzureIoTUtility.h>
@@ -18,7 +18,7 @@ void setup()
   initTime();
   initSensor();
   initServo();
-  initIot();
+  iotHubClientHandle = initIotHub();
   SetupComplete();
 }
 
@@ -31,7 +31,7 @@ void loop()
   if (SendMessageApproved())
   {
     char messagePayload[MESSAGE_MAX_LEN];
-    prepareMessage(temperature, messagePayload);
+    prepareMessage(messagePayload);
     sendMessage(iotHubClientHandle, messagePayload);
     nextSendTime = currentTime + sendInterval;
   }

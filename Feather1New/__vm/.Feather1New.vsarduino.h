@@ -109,11 +109,8 @@ typedef long __PTRDIFF_TYPE__;
 #define interrupts() sei()
 #define noInterrupts() cli()
 
-#include "Feather1.ino"
-#include "DHT11.ino"
-#include "Functions.ino"
-#include "ServoMotor.ino"
-#include "Time.ino"
+#include "Feather1New.ino"
+#include "credentials.ino"
 #include "iothubClient.ino"
 #include "message.ino"
 #endif

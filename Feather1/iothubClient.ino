@@ -2,6 +2,7 @@ static WiFiClientSecure sslClient; // for ESP8266
 
 const char *onSuccess = "\"Successfully invoke device method\"";
 const char *notFound = "\"No method found\"";
+const char *gitLink = "https://github.com/Svalann/BigData_inlupp1.git";
 
 
 static void sendCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *userContextCallback)
@@ -119,6 +120,9 @@ int deviceMethodCallback(
     else if (strcmp(methodName, "stop") == 0 || strcmp(methodName, "Stop") == 0)
         Stop();
 
+	else if (strcmp(methodName, "git") == 0 || strcmp(methodName, "github") == 0 || strcmp(methodName, "gitlink") == 0)
+		responseMessage = gitLink;
+
     else
     {
         Serial.printf("No method %s found.\r\n", methodName);
@@ -147,19 +151,53 @@ void twinCallback(
     free(temp);
 }	
 
-void initIot()
+char* GetConnectionString()
 {
-	iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol);
-	if (iotHubClientHandle == NULL)
-	{
-		Serial.println("Failed on IoTHubClient_CreateFromConnectionString.");
+	HTTPClient http;
+	String url = "http://iot18-fa-v2.azurewebsites.net/api/RegisterDevice?code=avXVx943iIavuDYIEbDe3u0JcvJO8VJjSexCzKiydgy5LA8I0HtSMw==&deviceid=" + DEVICE_ID;
+	char _connectionString[CONNECTIONSTRING_LEN];
+	Serial.println(url);
+	http.begin(url); //HTTP
+	int httpCode = http.GET();
+
+	if (httpCode > 0) {
+		if (httpCode == HTTP_CODE_OK) {
+			String payload = http.getString();
+			payload.toCharArray(_connectionString, CONNECTIONSTRING_LEN);
+		}
+	}
+	else {
+		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
 		while (1);
 	}
 
-	IoTHubClient_LL_SetOption(iotHubClientHandle, "product_info", "HappyPath_AdafruitFeatherHuzzah-C");
-	IoTHubClient_LL_SetMessageCallback(iotHubClientHandle, receiveMessageCallback, NULL);
+	http.end();
+	return _connectionString;
+}
+
+IOTHUB_CLIENT_LL_HANDLE initIotHub()
+{
+	Serial.println("Connecting to Azure IOT Hub. Please wait...");
+	IOTHUB_CLIENT_LL_HANDLE iotHubClientHandle;
+
+	iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(GetConnectionString(), MQTT_Protocol);
+	if (iotHubClientHandle == NULL)
+	{
+		Serial.println("ERROR: Failed on IoTHubClient_CreateFromConnectionString.");
+		while (1);
+	}
+
 	IoTHubClient_LL_SetDeviceMethodCallback(iotHubClientHandle, deviceMethodCallback, NULL);
 	IoTHubClient_LL_SetDeviceTwinCallback(iotHubClientHandle, twinCallback, NULL);
+
+	Serial.print("DeviceId: ");
+	Serial.println(DEVICE_ID);
+	Serial.print("Status: Connected");
+	Serial.println("");
+	Serial.println("");
+	Serial.println("MESSAGE INFORMATION");
+	Serial.println("----------------------------------------------------");
+	return iotHubClientHandle;
 }
 
 

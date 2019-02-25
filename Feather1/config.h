@@ -1,15 +1,41 @@
+/*
+Gemensamt IOT-HUB (Event Hub) - CUSTOM
+
+KEY:
+iot18-iothub
+
+VALUE:
+Endpoint=sb://iothub-ns-iot18-ioth-1314863-9e54412716.servicebus.windows.net/;SharedAccessKeyName=iot18;SharedAccessKey=CV55i4YEhjbMBEXonSceYUxLAySMIxd1ILf5VhSE7ko=;EntityPath=iot18-iothub
+
+Consumer Group: 6
+HostName=iot18-iothub.azure-devices.net;DeviceId=41;SharedAccessKey=v1aXUI6cL6b9cwPhRjW4YxgS/ZC0n0MRXMZH5KZp890=
+HostName=iot18-iothub.azure-devices.net;DeviceId=42;SharedAccessKey=eiO4wEyHXrf9MYal85Voe0Htz/yd//C5Ix0/hbJhqw4=
+*/
+
 #define NACKADEMIN 1
-#define HOME 2
+#define NACKA 2
+#define PELARGATAN 3
 
-#define LOCATION NACKADEMIN //write where you are/ which device you are using
+#define LOCATION NACKA //write where you are/ which device you are using
 
-#if LOCATION == HOME
-#define DEVICE_ID "Feather-TempSensor"
-static char *connectionString = "HostName=Inlupp3-cloud.azure-devices.net;DeviceId=Feather-TempSensor;SharedAccessKey=bc0Y11SyviA+ZEjbstekKjtfJ4o+TuYYlRXe6MRwQAo=";
+#if LOCATION == NACKA
+#define DEVICE_ID "41"
+#define DEVICE_NAME "ViktorS Device1"
+static char *connectionString = "HostName=iot18-iothub.azure-devices.net;DeviceId=41;SharedAccessKey=v1aXUI6cL6b9cwPhRjW4YxgS/ZC0n0MRXMZH5KZp890=";
 static char *WiFi_SSID = "Rullen";
 static char *WiFi_Password = "Banankaka17";
-#define LATITUDE 59259504
-#define LONGITUDE 18195617
+#define LATITUDE "59.259504"
+#define LONGITUDE "18.195617"
+#endif 
+
+#if LOCATION == PELARGATAN
+#define DEVICE_ID "42"
+#define DEVICE_NAME "ViktorS Device2"
+static char *connectionString = "HostName=iot18-iothub.azure-devices.net;DeviceId=42;SharedAccessKey=eiO4wEyHXrf9MYal85Voe0Htz/yd//C5Ix0/hbJhqw4=";
+static char *WiFi_SSID = "Rullen";
+static char *WiFi_Password = "Banankaka17";
+#define LATITUDE "59.295734""
+#define LONGITUDE "18.086679""
 #endif 
 
 #if LOCATION == NACKADEMIN
@@ -17,11 +43,13 @@ static char *WiFi_Password = "Banankaka17";
 static char *connectionString = "HostName=Inlupp3-cloud.azure-devices.net;DeviceId=Feather-TempSensor2;SharedAccessKey=bJatC58iLMxuqTtjNxmmCadvt95Zqenj5U/MueehOuM=";
 static char *WiFi_SSID = "IoT";
 static char *WiFi_Password = "IoT2018!";
-#define LATITUDE 59345279
-#define LONGITUDE 18023274
+#define LATITUDE "59.345279"
+#define LONGITUDE "18.023274"
 #endif 
 
-#define MYNAME "Viktor Svahlstedt"
+
+
+#define MYNAME "Viktor S"
 #define SENDER_ID "UWP-VentReg"
 #define CLOUD_PROVIDER "Azure"
 #define MESSAGE_TEMPERATURE_HIGH "High Temperature!"
@@ -74,6 +102,11 @@ unsigned long lastRedBlinkTime;
 unsigned long lastGreenBlinkTime;
 static int sendInterval = SENDINTERVAL;
 static int tempInterval = TEMPINTERVAL;
+
+char deviceName[32] = DEVICE_NAME;			// nya för TwinProp
+char myName[32] = MYNAME;
+char sensorType[32] = SENSORTYPE;
+
 static int temperatureAlertHigh = TEMPERATURE_ALERT_HIGH;
 static int temperatureAlertLow = TEMPERATURE_ALERT_LOW;
 static float temperature;

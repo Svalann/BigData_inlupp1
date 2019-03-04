@@ -24,7 +24,7 @@ static bool messageSending = true;
 
 
 //DHT Temperature sensor configuration
-#define DHT_PIN               16	
+#define DHT_PIN               13	
 #define DHT_TYPE              DHT11
 
 

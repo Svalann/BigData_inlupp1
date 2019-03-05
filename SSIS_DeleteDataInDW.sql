@@ -1,0 +1,9 @@
+DELETE FROM FactMessages
+DBCC CHECKIDENT('FactMessages', RESEED, 1)
+GO
+
+DELETE FROM DimDate
+DELETE FROM DimDevices
+DELETE FROM DimDeviceTypes
+DELETE FROM DimLocation
+DELETE FROM DimStudents

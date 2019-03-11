@@ -35,10 +35,6 @@ public static void Run(string input, IEnumerable<dynamic> MyCosmos, ICollector<s
 {
     log.Info($"C# manually tranferring CosmosDB to SQL");
 
-    IDictionary<string, IList<int>> deviceIdDict = new Dictionary<string, IList<int>>();
-    IList<int> intList = new List<int>() { 1, 20, 20, 20 };
-
-
     foreach (var msg in MyCosmos)
     {
         msg._etag = 0;
@@ -47,31 +43,15 @@ public static void Run(string input, IEnumerable<dynamic> MyCosmos, ICollector<s
         string cosmosMsg = msg.ToString();
         var messageFromCosmosDB = JsonConvert.DeserializeObject<MessageFromCosmos>(cosmosMsg);
 
-
         if (messageFromCosmosDB.idOriginal != null && messageFromCosmosDB.type != null && messageFromCosmosDB.student != null && messageFromCosmosDB.position != null && messageFromCosmosDB.dht != null && messageFromCosmosDB.dht[0] != 0 && messageFromCosmosDB.dht[1] != 0)
         {
-            
-            string deviceId = messageFromCosmosDB.idOriginal;
-            if (!deviceIdDict.ContainsKey(deviceId))
-                deviceIdDict.Add(deviceId, intList);
-
-            int ListPosition = deviceIdDict[deviceId][0];
-
-            if (ListPosition == 4)
-                ListPosition = 1;
-
-            deviceIdDict[deviceId][ListPosition] = messageFromCosmosDB.dht[0];
-            ListPosition++;
-
-
-
-
             using (SqlConnection conn = new SqlConnection(dbConnectionstring))
             {
                 var locationId = 0;
                 var devicetypeId = 0;
                 var studentId = 0;
                 var deviceId = 0;
+                string temperatureAlert = (messageFromCosmosDB.dht[0] >= 25 ? "true" : "false");
 
                 var LocationsSql = "IF NOT EXISTS (SELECT 1 FROM [Locations] WHERE [Longitude] = @devicelongitude AND [Latitude] = @devicelatitude) INSERT INTO[Locations] ([Longitude], [Latitude]) output INSERTED.LocationId VALUES(@devicelongitude, @devicelatitude) ELSE SELECT LocationId FROM[Locations] WHERE[Longitude] = @devicelongitude AND[Latitude] = @devicelatitude";
 
@@ -82,6 +62,8 @@ public static void Run(string input, IEnumerable<dynamic> MyCosmos, ICollector<s
                 var DevicesSql = "IF NOT EXISTS (SELECT 1 FROM [Devices] WHERE [MacAdress] = @macadress) INSERT INTO [Devices] ([MacAdress], [DeviceTypeId], [LocationId], [StudentId]) output INSERTED.DeviceId VALUES(@macadress, @devicetypeid, @devicelocationid, @studentid) ELSE SELECT DeviceId FROM [Devices] WHERE [MacAdress] = @macadress";
 
                 var MessagesSql = "INSERT INTO [Messages] ([DeviceId], [Temperature], [Humidity], [Created]) VALUES (@deviceid, @temperature, @humidity, @created)";
+
+                var PredictionMessagesSql = "INSERT INTO PredictionMessages ([Temperature], [Humidity], [Created],[DeviceId],[temperatureAlert],[averageTempLast3])VALUES (@temperature, @humidity, @created, @deviceId, @temperatureAlert, (SELECT AVG((SELECT TOP(3) [Temperature]FROM PredictionMessages WHERE DeviceId = @DeviceId ORDER BY Created DESC)) FROM PredictionMessagesWHERE DeviceId = @DeviceId))";
 
                 conn.Open();
 
@@ -118,12 +100,23 @@ public static void Run(string input, IEnumerable<dynamic> MyCosmos, ICollector<s
                 }
 
                 // Creating new Message
-                using (SqlCommand cmd = new SqlCommand(MessagesSql, conn))
+                using (SqlCommand cmd = new SqlCommand(PredictionMessagesSql, conn))
                 {
                     cmd.Parameters.AddWithValue("@deviceid", deviceId);
                     cmd.Parameters.AddWithValue("@temperature", messageFromCosmosDB.dht[0]);
                     cmd.Parameters.AddWithValue("@humidity", messageFromCosmosDB.dht[1]);
                     cmd.Parameters.AddWithValue("@created", FromEpochTimeStamp(messageFromCosmosDB._ts));
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Creating new PredMessage
+                using (SqlCommand cmd = new SqlCommand(PredictionMessagesSql, conn))
+                {                    
+                    cmd.Parameters.AddWithValue("@temperature", messageFromCosmosDB.dht[0]);
+                    cmd.Parameters.AddWithValue("@humidity", messageFromCosmosDB.dht[1]);
+                    cmd.Parameters.AddWithValue("@created", FromEpochTimeStamp(messageFromCosmosDB._ts));
+                    cmd.Parameters.AddWithValue("@deviceid", deviceId);
+                    cmd.Parameters.AddWithValue("@temperatureAlert", temperatureAlert);
                     cmd.ExecuteNonQuery();
                 }
                 conn.Close();

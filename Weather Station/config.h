@@ -8,10 +8,10 @@
 #define DEVICE_LOCATION_LON   "18.195617"    
 #define DEVICE_SEND_INTERVAL  620000       
 
-#define WIFI_SSID             "Rullen"
-#define WIFI_PASS             "Banankaka17"
-//#define WIFI_SSID             "IoT"
-//#define WIFI_PASS             "IoT2018!"
+#define WIFI_SSID             ""
+#define WIFI_PASS             ""
+//#define WIFI_SSID             ""
+//#define WIFI_PASS             "!"
 
 static int interval = DEVICE_SEND_INTERVAL;
 char deviceStudent[16] = DEVICE_STUDENT;

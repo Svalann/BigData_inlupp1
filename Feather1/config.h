@@ -22,8 +22,8 @@ HostName=iot18-iothub.azure-devices.net;DeviceId=42;SharedAccessKey=eiO4wEyHXrf9
 #define DEVICE_ID "41"
 #define DEVICE_NAME "ViktorS Device1"
 static char *connectionString = "HostName=iot18-iothub.azure-devices.net;DeviceId=41;SharedAccessKey=v1aXUI6cL6b9cwPhRjW4YxgS/ZC0n0MRXMZH5KZp890=";
-static char *WiFi_SSID = "Rullen";
-static char *WiFi_Password = "Banankaka17";
+static char *WiFi_SSID = "";
+static char *WiFi_Password = "";
 #define LATITUDE "59.259504"
 #define LONGITUDE "18.195617"
 #endif 
@@ -32,8 +32,8 @@ static char *WiFi_Password = "Banankaka17";
 #define DEVICE_ID "42"
 #define DEVICE_NAME "ViktorS Device2"
 static char *connectionString = "HostName=iot18-iothub.azure-devices.net;DeviceId=42;SharedAccessKey=eiO4wEyHXrf9MYal85Voe0Htz/yd//C5Ix0/hbJhqw4=";
-static char *WiFi_SSID = "Rullen";
-static char *WiFi_Password = "Banankaka17";
+static char *WiFi_SSID = "";
+static char *WiFi_Password = "";
 #define LATITUDE "59.295734""
 #define LONGITUDE "18.086679""
 #endif 
@@ -103,7 +103,7 @@ unsigned long lastGreenBlinkTime;
 static int sendInterval = SENDINTERVAL;
 static int tempInterval = TEMPINTERVAL;
 
-char deviceName[32] = DEVICE_NAME;			// nya för TwinProp
+char deviceName[32] = DEVICE_NAME;			// nya fÃ¶r TwinProp
 char myName[32] = MYNAME;
 char sensorType[32] = SENSORTYPE;
 
